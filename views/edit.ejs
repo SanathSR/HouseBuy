@@ -1,0 +1,199 @@
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<div class="d-flex justify-content-between mb-3">
+
+<h4>Edit Transaction</h4>
+
+<a href="/"
+class="btn btn-secondary">
+
+⬅ Back
+
+</a>
+
+</div>
+
+
+<form
+method="POST"
+action="/edit/<%= t.id %>?_method=PUT">
+
+<div class="row">
+
+<div class="col-md-3">
+
+<label>Date</label>
+
+<input
+type="date"
+name="payment_date"
+class="form-control"
+value="<%= t.payment_date.toISOString().split('T')[0] %>"
+required>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<label>Amount</label>
+
+<input
+type="number"
+name="amount"
+class="form-control"
+value="<%= t.amount %>"
+required>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<label>Purpose</label>
+
+<input
+type="text"
+name="purpose"
+class="form-control"
+value="<%= t.purpose %>"
+required>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<label>Paid By</label>
+
+<select
+name="paid_by"
+class="form-control">
+
+<option <%= t.paid_by=="Sudhakar"?"selected":"" %>>
+Sudhakar
+</option>
+
+<option <%= t.paid_by=="Sowbhagya"?"selected":"" %>>
+Sowbhagya
+</option>
+
+<option <%= t.paid_by=="Sanath"?"selected":"" %>>
+Sanath
+</option>
+
+<option <%= t.paid_by=="Subhash"?"selected":"" %>>
+Subhash
+</option>
+
+<option <%= t.paid_by=="Bank Loan"?"selected":"" %>>
+Bank Loan
+</option>
+
+<option <%= t.paid_by=="Other"?"selected":"" %>>
+Other
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+
+<div class="row mt-3">
+
+<div class="col-md-3">
+
+<label>Other Person</label>
+
+<input
+type="text"
+name="other_person"
+class="form-control"
+value="<%= t.other_person %>">
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<label>Payment Mode</label>
+
+<select
+name="payment_mode"
+class="form-control">
+
+<option <%= t.payment_mode=="Cash"?"selected":"" %>>
+Cash
+</option>
+
+<option <%= t.payment_mode=="UPI"?"selected":"" %>>
+UPI
+</option>
+
+<option <%= t.payment_mode=="DD"?"selected":"" %>>
+DD
+</option>
+
+<option <%= t.payment_mode=="Cheque"?"selected":"" %>>
+Cheque
+</option>
+
+<option <%= t.payment_mode=="Bank Transfer"?"selected":"" %>>
+Bank Transfer
+</option>
+
+</select>
+
+</div>
+
+
+
+<div class="col-md-6">
+
+<label>Comments</label>
+
+<input
+type="text"
+name="comments"
+class="form-control"
+value="<%= t.comments %>">
+
+</div>
+
+</div>
+
+
+
+<div class="mt-4">
+
+<button
+class="btn btn-primary">
+
+💾 Update
+
+</button>
+
+<a
+href="/"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
