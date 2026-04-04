@@ -23,13 +23,22 @@ app.use(bodyParser.urlencoded({
 
 app.use(methodOverride("_method"));
 
+function checkPassword(req, res, next) {
+    const password = req.body.password || req.query.password;
 
+    if (!password || password !== process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorised"
+        });
+    }
+
+    next();
+}
 
 /* DASHBOARD */
 
 app.get("/", async (req, res) => {
-console.log(process.env.DB_Host,process.env.DB_User,process.env.DB_Port,process.env.DB_Password,process.env.DB_Name)
-
     const result =
     await db.query(
         "SELECT * FROM transactions ORDER BY payment_date DESC"
@@ -185,8 +194,7 @@ async (req, res) => {
 
 
 
-app.put("/edit/:id",
-async (req, res) => {
+app.put("/edit/:id", checkPassword, async (req, res) => {
 
     const {
         payment_date,
@@ -232,8 +240,7 @@ async (req, res) => {
 
 /* DELETE */
 
-app.delete("/delete/:id",
-async (req, res) => {
+app.delete("/delete/:id", checkPassword, async (req, res) => {
 
     await db.query(
 

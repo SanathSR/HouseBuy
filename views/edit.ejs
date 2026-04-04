@@ -1,199 +1,120 @@
+<%- include('partials/header') %>
+
 <div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-3">
+      <h4>Edit Transaction</h4>
+      <div>
+        <a href="/" class="btn btn-secondary btn-sm">⬅ Back</a>
+      </div>
+    </div>
 
-<div class="card-body">
+    <!-- EDIT FORM -->
+    <form id="editForm" method="POST" action="/edit/<%= t.id %>" onsubmit="event.preventDefault(); showPasswordModal(this)">
+      <!-- Hidden method for method-override -->
+      <input type="hidden" name="_method" value="PUT">
 
-<div class="d-flex justify-content-between mb-3">
+      <div class="row">
+        <div class="col-md-3">
+          <label>Date</label>
+          <input type="date" name="payment_date" class="form-control" value="<%= t.payment_date.toISOString().split('T')[0] %>" required>
+        </div>
 
-<h4>Edit Transaction</h4>
+        <div class="col-md-3">
+          <label>Amount</label>
+          <input type="number" name="amount" class="form-control" value="<%= t.amount %>" required>
+        </div>
 
-<a href="/"
-class="btn btn-secondary">
+        <div class="col-md-3">
+          <label>Purpose</label>
+          <input type="text" name="purpose" class="form-control" value="<%= t.purpose %>" required>
+        </div>
 
-⬅ Back
+        <div class="col-md-3">
+          <label>Paid By</label>
+          <select name="paid_by" class="form-control">
+            <% ["Sudhakar","Sowbhagya","Sanath","Subhash","Bank Loan","Other"].forEach(p => { %>
+              <option <%= t.paid_by === p ? "selected" : "" %>><%= p %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
 
-</a>
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <label>Other Person</label>
+          <input type="text" name="other_person" class="form-control" value="<%= t.other_person %>">
+        </div>
 
+        <div class="col-md-3">
+          <label>Payment Mode</label>
+          <select name="payment_mode" class="form-control">
+            <% ["Cash","UPI","DD","Cheque","Bank Transfer"].forEach(m => { %>
+              <option <%= t.payment_mode === m ? "selected" : "" %>><%= m %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label>Comments</label>
+          <input type="text" name="comments" class="form-control" value="<%= t.comments %>">
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button class="btn btn-primary">💾 Update</button>
+        <a href="/" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
 </div>
 
-
-<form
-method="POST"
-action="/edit/<%= t.id %>?_method=PUT">
-
-<div class="row">
-
-<div class="col-md-3">
-
-<label>Date</label>
-
-<input
-type="date"
-name="payment_date"
-class="form-control"
-value="<%= t.payment_date.toISOString().split('T')[0] %>"
-required>
-
-</div>
-
-
-
-<div class="col-md-3">
-
-<label>Amount</label>
-
-<input
-type="number"
-name="amount"
-class="form-control"
-value="<%= t.amount %>"
-required>
-
-</div>
-
-
-
-<div class="col-md-3">
-
-<label>Purpose</label>
-
-<input
-type="text"
-name="purpose"
-class="form-control"
-value="<%= t.purpose %>"
-required>
-
-</div>
-
-
-
-<div class="col-md-3">
-
-<label>Paid By</label>
-
-<select
-name="paid_by"
-class="form-control">
-
-<option <%= t.paid_by=="Sudhakar"?"selected":"" %>>
-Sudhakar
-</option>
-
-<option <%= t.paid_by=="Sowbhagya"?"selected":"" %>>
-Sowbhagya
-</option>
-
-<option <%= t.paid_by=="Sanath"?"selected":"" %>>
-Sanath
-</option>
-
-<option <%= t.paid_by=="Subhash"?"selected":"" %>>
-Subhash
-</option>
-
-<option <%= t.paid_by=="Bank Loan"?"selected":"" %>>
-Bank Loan
-</option>
-
-<option <%= t.paid_by=="Other"?"selected":"" %>>
-Other
-</option>
-
-</select>
-
-</div>
-
-</div>
-
-
-
-<div class="row mt-3">
-
-<div class="col-md-3">
-
-<label>Other Person</label>
-
-<input
-type="text"
-name="other_person"
-class="form-control"
-value="<%= t.other_person %>">
-
-</div>
-
-
-
-<div class="col-md-3">
-
-<label>Payment Mode</label>
-
-<select
-name="payment_mode"
-class="form-control">
-
-<option <%= t.payment_mode=="Cash"?"selected":"" %>>
-Cash
-</option>
-
-<option <%= t.payment_mode=="UPI"?"selected":"" %>>
-UPI
-</option>
-
-<option <%= t.payment_mode=="DD"?"selected":"" %>>
-DD
-</option>
-
-<option <%= t.payment_mode=="Cheque"?"selected":"" %>>
-Cheque
-</option>
-
-<option <%= t.payment_mode=="Bank Transfer"?"selected":"" %>>
-Bank Transfer
-</option>
-
-</select>
-
-</div>
-
-
-
-<div class="col-md-6">
-
-<label>Comments</label>
-
-<input
-type="text"
-name="comments"
-class="form-control"
-value="<%= t.comments %>">
-
-</div>
-
-</div>
-
-
-
-<div class="mt-4">
-
-<button
-class="btn btn-primary">
-
-💾 Update
-
-</button>
-
-<a
-href="/"
-class="btn btn-secondary">
-
-Cancel
-
-</a>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
+<!-- PASSWORD MODAL -->
+<%- include('partials/passwordModal') %>
+<script>
+let currentForm = null;
+
+function showPasswordModal(form) {
+  currentForm = form;
+  document.getElementById("passwordError").innerText = "";
+  document.getElementById("modalPassword").value = "";
+  const modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+  modal.show();
+}
+
+document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const password = document.getElementById('modalPassword').value;
+  const errorBox = document.getElementById('passwordError');
+
+  // Build URL-encoded parameters
+  const params = [];
+  for (let el of currentForm.elements) {
+    if (!el.name) continue;
+    params.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
+  }
+  params.push("password=" + encodeURIComponent(password));
+
+  try {
+    // Send _method=PUT in query string so method-override works
+    const res = await fetch(currentForm.action + "?_method=PUT", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.join("&")
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      errorBox.innerText = data?.message || "Incorrect password!";
+      return;
+    }
+
+    // Success: redirect to dashboard
+    window.location.href = "/";
+  } catch (err) {
+    errorBox.innerText = "Server error. Try again.";
+  }
+});
+</script>
+
+<%- include('partials/footer') %>

@@ -1,20 +1,13 @@
+<%- include('partials/header') %>
+
 <div class="card shadow-sm">
-
-<div class="card-body">
-
-<div class="d-flex justify-content-between mb-3">
-
-<h4>Add Transaction</h4>
-
-<a href="/"
-class="btn btn-secondary">
-
-⬅ Back
-
-</a>
-
-</div>
-
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-3">
+      <h4>Add Transaction</h4>
+      <div>
+        <a href="/" class="btn btn-secondary btn-sm">⬅ Back</a>
+      </div>
+    </div>
 
 <form method="POST"
 action="/add">
@@ -169,7 +162,6 @@ Cancel
 </div>
 
 </form>
-
 </div>
-
 </div>
+<%- include('partials/footer') %>

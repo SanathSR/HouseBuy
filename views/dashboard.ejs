@@ -1,320 +1,122 @@
+<%- include('partials/header') %>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
-
-<h4>Dashboard</h4>
-
-<div>
-
-<a href="/add"
-class="btn btn-primary btn-sm">
-
-➕ Add
-
-</a>
-
-<a href="/export"
-class="btn btn-success btn-sm">
-
-⬇ Export
-
-</a>
-
+  <h4>Dashboard</h4>
+  <div>
+    <a href="/add" class="btn btn-primary btn-sm">➕ Add</a>
+    <a href="/export" class="btn btn-success btn-sm">⬇ Export</a>
+  </div>
 </div>
-
-</div>
-
-
 
 <!-- SUMMARY -->
-
 <div class="row mb-3">
-
-<div class="col-md-6 mb-2">
-
-<div class="card shadow-sm text-center">
-
-<div class="card-body">
-
-<h6>Total Spend</h6>
-
-<h4 class="text-success">
-
-₹ <%= total || 0 %>
-
-</h4>
-
+  <div class="col-md-6 mb-2">
+    <div class="card shadow-sm text-center">
+      <div class="card-body">
+        <h6>Total Spend</h6>
+        <h4 class="text-success">₹ <%= total || 0 %></h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 mb-2">
+    <div class="card shadow-sm text-center">
+      <div class="card-body">
+        <h6>Total Transactions</h6>
+        <h4><%= count || 0 %></h4>
+      </div>
+    </div>
+  </div>
 </div>
-
-</div>
-
-</div>
-
-
-
-<div class="col-md-6 mb-2">
-
-<div class="card shadow-sm text-center">
-
-<div class="card-body">
-
-<h6>Total Transactions</h6>
-
-<h4>
-
-<%= count || 0 %>
-
-</h4>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- CHARTS -->
-
-<div class="row mb-4 text-center">
-
-<div class="col-md-6 mb-3">
-
-<div class="card shadow-sm">
-
-<div class="card-body">
-
-<h6>Spend by Purpose</h6>
-
-<div class="chart-box">
-
-<canvas id="purposeChart"></canvas>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<div class="col-md-6 mb-3">
-
-<div class="card shadow-sm">
-
-<div class="card-body">
-
-<h6>Spend by Paid By</h6>
-
-<div class="chart-box">
-
-<canvas id="paidChart"></canvas>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
 
 <!-- RECENT TABLE -->
-
 <div class="card shadow-sm">
-
-<div class="card-body">
-
-<div class="d-flex justify-content-between mb-2">
-
-<h5>Recent Transactions</h5>
-
-<a href="/list"
-class="btn btn-secondary btn-sm">
-
-View All
-
-</a>
-
-</div>
-
-<div class="table-responsive">
-
-<table class="table table-striped table-bordered">
-
-<thead class="table-dark">
-
-<tr>
-
-<th>Date</th>
-<th>Amount</th>
-<th>Purpose</th>
-<th>Paid By</th>
-<th>Mode</th>
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<% (data || []).slice(0,10).forEach(t => { %>
-
-<tr>
-
-<td>
-<%= new Date(t.payment_date).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-}) %>
-</td>
-
-<td class="text-success">
-
-₹ <%= t.amount %>
-
-</td>
-
-<td><%= t.purpose %></td>
-
-<td>
-
-<%= t.paid_by === "Other"
-? t.other_person
-: t.paid_by %>
-
-</td>
-
-<td><%= t.payment_mode %></td>
-
-<td>
-
-<a
-href="/edit/<%= t.id %>"
-class="btn btn-warning btn-sm">
-
-✏
-
-</a>
-
-<form
-method="POST"
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-2">
+      <h5>Recent Transactions</h5>
+      <a href="/list" class="btn btn-secondary btn-sm">View All</a>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Purpose</th>
+            <th>Paid By</th>
+            <th>Mode</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% (data || []).slice(0,10).forEach(t => { %>
+          <tr>
+            <td><%= new Date(t.payment_date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric'}) %></td>
+            <td class="text-success">₹ <%= t.amount %></td>
+            <td><%= t.purpose %></td>
+            <td><%= t.paid_by === "Other" ? t.other_person : t.paid_by %></td>
+            <td><%= t.payment_mode %></td>
+            <td>
+              <!-- Edit Button -->
+              <a href="/edit/<%= t.id %>?redirect=/list" class="btn btn-warning btn-sm">✏</a>
+              <!-- Delete Button -->
+              <form method="POST"
 action="/delete/<%= t.id %>?_method=DELETE"
+onsubmit="event.preventDefault(); showPasswordModal(this)"
 style="display:inline">
-
-<button
-class="btn btn-danger btn-sm">
-
-🗑
-
-</button>
-
+    <button class="btn btn-danger btn-sm">🗑</button>
 </form>
-
-</td>
-
-</tr>
-
-<% }) %>
-
-</tbody>
-
-</table>
-
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
-</div>
-
-</div>
-
-
+<%- include('partials/passwordModal') %>
 
 <script>
+let currentForm = null;
 
-const raw =
-`<%- JSON.stringify(data || []) %>`;
+function showPasswordModal(form) {
+    currentForm = form;
+    document.getElementById("passwordError").innerText = "";
+    document.getElementById("modalPassword").value = "";
 
-const data =
-JSON.parse(raw);
+    const modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+    modal.show();
+}
 
+document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
+    const password = document.getElementById('modalPassword').value;
+    const errorBox = document.getElementById('passwordError');
 
-/* PURPOSE */
+    try {
+        const formData = new FormData(currentForm);
+        formData.append("password", password);
 
-const purposeMap = {};
+        const res = await fetch(currentForm.action, {
+            method: currentForm.method,
+            body: new URLSearchParams(formData)
+        });
 
-data.forEach(t => {
+        if (!res.ok) {
+            const data = await res.json();
+            errorBox.innerText = data.message;
+            return;
+        }
 
-if(!purposeMap[t.purpose])
-purposeMap[t.purpose]=0;
+        // redirect back after success
+        const urlParams = new URLSearchParams(currentForm.action.split('?')[1]);
+        const redirect = urlParams.get("redirect") || "/";
+        window.location.href = redirect;
 
-purposeMap[t.purpose]+=Number(t.amount);
-
+    } catch (err) {
+        errorBox.innerText = "Server error";
+    }
 });
-
-
-
-new Chart(
-document.getElementById("purposeChart"),
-{
-type:"doughnut",
-data:{
-labels:Object.keys(purposeMap),
-datasets:[{
-data:Object.values(purposeMap)
-}]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
-}
-}
-);
-
-
-
-/* PAID */
-
-const paidMap = {};
-
-data.forEach(t => {
-
-let name =
-t.paid_by === "Other"
-? t.other_person
-: t.paid_by;
-
-if(!paidMap[name])
-paidMap[name]=0;
-
-paidMap[name]+=Number(t.amount);
-
-});
-
-
-
-new Chart(
-document.getElementById("paidChart"),
-{
-type:"doughnut",
-data:{
-labels:Object.keys(paidMap),
-datasets:[{
-data:Object.values(paidMap)
-}]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false
-}
-}
-);
-
 </script>
+<%- include('partials/footer') %>
