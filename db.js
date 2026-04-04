@@ -1,4 +1,4 @@
-const dotenv = require('dotenv');
+/* const dotenv = require('dotenv');
 dotenv.config();
 
 const { Pool } = require('pg');
@@ -17,4 +17,15 @@ const client = new Pool({
 
 });
 
-module.exports = client;
+module.exports = client; */
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+pool.on('connect', () => console.log('Database connected successfully'));
+pool.on('error', (err) => console.error('Unexpected DB error', err));
+
+module.exports = pool;
