@@ -28,6 +28,7 @@ app.use(methodOverride("_method"));
 /* DASHBOARD */
 
 app.get("/", async (req, res) => {
+console.log(process.env.DB_Host,process.env.DB_User,process.env.DB_Port,process.env.DB_Password,process.env.DB_Name)
 
     const result =
     await db.query(
