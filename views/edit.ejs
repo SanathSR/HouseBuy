@@ -33,7 +33,7 @@
         <div class="col-md-3">
           <label>Paid By</label>
           <select name="paid_by" class="form-control">
-            <% ["Sudhakar","Sowbhagya","Sanath","Subhash","Bank Loan","Other"].forEach(p => { %>
+            <% ["Savings Together","Sudhakar","Sowbhagya","Sanath","Subhash","Bank Loan","Other"].forEach(p => { %>
               <option <%= t.paid_by === p ? "selected" : "" %>><%= p %></option>
             <% }) %>
           </select>
