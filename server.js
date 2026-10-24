@@ -38,8 +38,6 @@ function checkPassword(req, res, next) {
 
 /* DASHBOARD */
 
-
-  
 app.get("/", async (req, res) => {
     try {
         const result = await pool.query(
@@ -49,26 +47,70 @@ app.get("/", async (req, res) => {
         const data = result.rows;
 
         const total = data.reduce(
-            (sum, t) => sum + Number(t.amount),
-            0
+            (sum, t) => sum + Number(t.amount || 0), 0
         );
 
         const count = data.length;
 
-        const buyTotal = data
-            .filter(t => (t.paid_for || "").toLowerCase() === "buy")
-            .reduce((sum, t) => sum + Number(t.amount), 0);
+        const buyData = data.filter(
+            t => (t.paid_for || "").toLowerCase() === "buy"
+        );
 
-        const constructionTotal = data
-            .filter(t => (t.paid_for || "").toLowerCase() === "construction")
-            .reduce((sum, t) => sum + Number(t.amount), 0);
+        const constructionData = data.filter(
+            t => (t.paid_for || "").toLowerCase() === "construction"
+        );
+
+        const buyTotal = buyData.reduce(
+            (sum, t) => sum + Number(t.amount || 0), 0
+        );
+
+        const constructionTotal = constructionData.reduce(
+            (sum, t) => sum + Number(t.amount || 0), 0
+        );
+
+        // Group transaction amounts by a field
+        function makePieData(rows, field) {
+            const totals = {};
+
+            rows.forEach(t => {
+                let label;
+
+                if (field === "paid_by") {
+                    label = t.paid_by === "Other"
+                        ? (t.other_person || "Other")
+                        : (t.paid_by || "Unknown");
+                } else {
+                    label = t.payment_mode || "Unknown";
+                }
+
+                totals[label] = (totals[label] || 0)
+                    + Number(t.amount || 0);
+            });
+
+            return {
+                labels: Object.keys(totals),
+                values: Object.values(totals)
+            };
+        }
+
+        const charts = {
+            buyPaidBy: makePieData(buyData, "paid_by"),
+            constructionPaidBy: makePieData(constructionData, "paid_by"),
+            buyMode: makePieData(buyData, "payment_mode"),
+            constructionMode: makePieData(constructionData, "payment_mode")
+        };
+
+        // Safely serialize database-derived labels for use in script tags.
+        const chartJson = JSON.stringify(charts)
+            .replace(/</g, "\\u003c");
 
         res.render("dashboard", {
             data,
             total,
             count,
             buyTotal,
-            constructionTotal
+            constructionTotal,
+            chartJson
         });
 
     } catch (err) {
@@ -76,7 +118,6 @@ app.get("/", async (req, res) => {
         res.status(500).send("Error loading dashboard");
     }
 });
-
 
 /* ADD PAGE */
 
