@@ -227,7 +227,7 @@ app.put("/edit/:id", checkPassword, async (req, res) => {
             other_person=$6,
             payment_mode=$7,
             paid_for=$8
-         WHERE id=$`,
+         WHERE id=$9`,
 
         [
             payment_date,
