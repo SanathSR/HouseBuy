@@ -38,35 +38,44 @@ function checkPassword(req, res, next) {
 
 /* DASHBOARD */
 
+
+  
 app.get("/", async (req, res) => {
-    const result =
-        await pool.query(
+    try {
+        const result = await pool.query(
             "SELECT * FROM transactions ORDER BY payment_date DESC"
         );
 
-    const data = result.rows;
+        const data = result.rows;
 
-    const total =
-        data.reduce(
-            (sum, t) =>
-                sum + Number(t.amount),
+        const total = data.reduce(
+            (sum, t) => sum + Number(t.amount),
             0
         );
 
-    const count =
-        data.length;
+        const count = data.length;
 
-    res.render(
-        "dashboard",
-        {
+        const buyTotal = data
+            .filter(t => (t.paid_for || "").toLowerCase() === "buy")
+            .reduce((sum, t) => sum + Number(t.amount), 0);
+
+        const constructionTotal = data
+            .filter(t => (t.paid_for || "").toLowerCase() === "construction")
+            .reduce((sum, t) => sum + Number(t.amount), 0);
+
+        res.render("dashboard", {
             data,
             total,
-            count
-        }
-    );
+            count,
+            buyTotal,
+            constructionTotal
+        });
 
+    } catch (err) {
+        console.error("Dashboard error:", err);
+        res.status(500).send("Error loading dashboard");
+    }
 });
-
 
 
 /* ADD PAGE */
