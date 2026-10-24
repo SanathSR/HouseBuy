@@ -10,7 +10,7 @@
 
 <!-- SUMMARY -->
 <div class="row mb-3">
-  <div class="col-md-6 mb-2">
+  <div class="col-md-3 col-6 mb-2">
     <div class="card shadow-sm text-center">
       <div class="card-body">
         <h6>Total Spend</h6>
@@ -18,11 +18,34 @@
       </div>
     </div>
   </div>
-  <div class="col-md-6 mb-2">
+
+  <div class="col-md-3 col-6 mb-2">
     <div class="card shadow-sm text-center">
       <div class="card-body">
         <h6>Total Transactions</h6>
         <h4><%= count || 0 %></h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-6 mb-2">
+    <div class="card shadow-sm text-center">
+      <div class="card-body">
+        <h6>Buy Spend</h6>
+        <h4 class="text-primary">
+          ₹ <%= buyTotal || 0 %>
+        </h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-6 mb-2">
+    <div class="card shadow-sm text-center">
+      <div class="card-body">
+        <h6>Construction Spend</h6>
+        <h4 class="text-warning">
+          ₹ <%= constructionTotal || 0 %>
+        </h4>
       </div>
     </div>
   </div>
