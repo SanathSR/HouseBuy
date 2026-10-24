@@ -44,6 +44,7 @@
             <th>Purpose</th>
             <th>Paid By</th>
             <th>Mode</th>
+            <th>For</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -55,6 +56,7 @@
             <td><%= t.purpose %></td>
             <td><%= t.paid_by === "Other" ? t.other_person : t.paid_by %></td>
             <td><%= t.payment_mode %></td>
+            <td><%= t.paid_for %></td>
             <td>
               <!-- Edit Button -->
               <a href="/edit/<%= t.id %>?redirect=/list" class="btn btn-warning btn-sm">✏</a>

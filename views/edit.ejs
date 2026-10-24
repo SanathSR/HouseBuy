@@ -55,7 +55,16 @@
           </select>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-2">
+          <label>Paid For</label>
+          <select name="paid_for" class="form-control">
+            <% ["Buy","Construction"].forEach(m => { %>
+              <option <%= t.payment_mode === m ? "selected" : "" %>><%= m %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="col-md-4">
           <label>Comments</label>
           <input type="text" name="comments" class="form-control" value="<%= t.comments %>">
         </div>

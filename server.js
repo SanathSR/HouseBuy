@@ -4,7 +4,7 @@ const methodOverride = require("method-override");
 const XLSX = require("xlsx");
 const expressLayouts = require("express-ejs-layouts");
 
-const db = require("./db");
+const { pool, initializeDatabase } = require('./db');
 
 require("dotenv").config();
 
@@ -40,21 +40,21 @@ function checkPassword(req, res, next) {
 
 app.get("/", async (req, res) => {
     const result =
-    await db.query(
-        "SELECT * FROM transactions ORDER BY payment_date DESC"
-    );
+        await pool.query(
+            "SELECT * FROM transactions ORDER BY payment_date DESC"
+        );
 
     const data = result.rows;
 
     const total =
-    data.reduce(
-        (sum, t) =>
-        sum + Number(t.amount),
-        0
-    );
+        data.reduce(
+            (sum, t) =>
+                sum + Number(t.amount),
+            0
+        );
 
     const count =
-    data.length;
+        data.length;
 
     res.render(
         "dashboard",
@@ -90,10 +90,11 @@ app.post("/add", async (req, res) => {
         comments,
         paid_by,
         other_person,
-        payment_mode
+        payment_mode,
+        paid_for
     } = req.body;
 
-    await db.query(
+    await pool.query(
 
         `INSERT INTO transactions
         (
@@ -103,9 +104,10 @@ app.post("/add", async (req, res) => {
             comments,
             paid_by,
             other_person,
-            payment_mode
+            payment_mode,
+            paid_for
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
 
         [
             payment_date,
@@ -114,7 +116,8 @@ app.post("/add", async (req, res) => {
             comments,
             paid_by,
             other_person,
-            payment_mode
+            payment_mode,
+            paid_for
         ]
 
     );
@@ -126,7 +129,7 @@ app.post("/add", async (req, res) => {
 
 app.get("/list", async (req, res) => {
 
-    const { from, to, paid_by, sort } = req.query;
+    const { from, to, paid_by, paid_for, sort } = req.query;
 
     let query = "SELECT * FROM transactions WHERE 1=1";
     const values = [];
@@ -141,6 +144,11 @@ app.get("/list", async (req, res) => {
 
     if (to) {
         query += ` AND payment_date <= $${i++}`;
+        values.push(to);
+    }
+
+    if (paid_for) {
+        query += ` AND paid_for <= $${i++}`;
         values.push(to);
     }
 
@@ -161,7 +169,7 @@ app.get("/list", async (req, res) => {
         query += " ORDER BY payment_date DESC";
     }
 
-    const result = await db.query(query, values);
+    const result = await pool.query(query, values);
 
     res.render("list", {
         data: result.rows,
@@ -174,23 +182,23 @@ app.get("/list", async (req, res) => {
 /* EDIT */
 
 app.get("/edit/:id",
-async (req, res) => {
+    async (req, res) => {
 
-    const result =
-    await db.query(
+        const result =
+            await pool.query(
 
-        "SELECT * FROM transactions WHERE id=$1",
+                "SELECT * FROM transactions WHERE id=$1",
 
-        [req.params.id]
+                [req.params.id]
 
-    );
+            );
 
-    res.render(
-        "edit",
-        { t: result.rows[0] }
-    );
+        res.render(
+            "edit",
+            { t: result.rows[0] }
+        );
 
-});
+    });
 
 
 
@@ -203,10 +211,11 @@ app.put("/edit/:id", checkPassword, async (req, res) => {
         comments,
         paid_by,
         other_person,
-        payment_mode
+        payment_mode,
+        paid_for
     } = req.body;
 
-    await db.query(
+    await pool.query(
 
         `UPDATE transactions
          SET
@@ -216,8 +225,9 @@ app.put("/edit/:id", checkPassword, async (req, res) => {
             comments=$4,
             paid_by=$5,
             other_person=$6,
-            payment_mode=$7
-         WHERE id=$8`,
+            payment_mode=$7,
+            paid_for=$8
+         WHERE id=$`,
 
         [
             payment_date,
@@ -227,6 +237,7 @@ app.put("/edit/:id", checkPassword, async (req, res) => {
             paid_by,
             other_person,
             payment_mode,
+            paid_for,
             req.params.id
         ]
 
@@ -242,7 +253,7 @@ app.put("/edit/:id", checkPassword, async (req, res) => {
 
 app.delete("/delete/:id", checkPassword, async (req, res) => {
 
-    await db.query(
+    await pool.query(
 
         "DELETE FROM transactions WHERE id=$1",
 
@@ -259,54 +270,55 @@ app.delete("/delete/:id", checkPassword, async (req, res) => {
 /* EXPORT */
 
 app.get("/export",
-async (req, res) => {
+    async (req, res) => {
 
-    const result =
-    await db.query(
-        "SELECT * FROM transactions"
-    );
+        const result =
+            await pool.query(
+                "SELECT * FROM transactions"
+            );
 
-    const ws =
-    XLSX.utils.json_to_sheet(
-        result.rows
-    );
+        const ws =
+            XLSX.utils.json_to_sheet(
+                result.rows
+            );
 
-    const wb =
-    XLSX.utils.book_new();
+        const wb =
+            XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(
-        wb,
-        ws,
-        "Transactions"
-    );
+        XLSX.utils.book_append_sheet(
+            wb,
+            ws,
+            "Transactions"
+        );
 
-    const file =
-    XLSX.write(
-        wb,
-        {
-            type: "buffer",
-            bookType: "xlsx"
-        }
-    );
+        const file =
+            XLSX.write(
+                wb,
+                {
+                    type: "buffer",
+                    bookType: "xlsx"
+                }
+            );
 
-    res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=transactions.xlsx"
-    );
+        res.setHeader(
+            "Content-Disposition",
+            "attachment; filename=transactions.xlsx"
+        );
 
-    res.send(file);
+        res.send(file);
 
-});
+    });
 
+async function startServer() {
+  try {
+    await initializeDatabase();
 
-
-app.listen(
-process.env.PORT,
-() => {
-
-console.log(
-"Server running on port " +
-process.env.PORT
-);
-
-});
+    app.listen(process.env.PORT, () => {
+      console.log(`Server running on port ${process.env.PORT}`);
+    });
+  } catch (err) {
+    console.error('Unable to start application:', err.message);
+    process.exit(1);
+  }
+}
+startServer();

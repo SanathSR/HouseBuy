@@ -12,11 +12,11 @@
 
     <!-- FILTERS -->
     <form method="GET" action="/list" class="row mb-3">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label>From Date</label>
         <input type="date" name="from" class="form-control" value="<%= query?.from || '' %>">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label>To Date</label>
         <input type="date" name="to" class="form-control" value="<%= query?.to || '' %>">
       </div>
@@ -26,6 +26,15 @@
           <option value="">All</option>
           <% ["Sudhakar","Sowbhagya","Sanath","Subhash","Bank Loan","Other"].forEach(p => { %>
             <option <%= query?.paid_by===p?"selected":"" %>><%= p %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label>Paid For</label>
+        <select name="paid_for" class="form-control">
+          <option value="">All</option>
+          <% ["Buy","Construction"].forEach(p => { %>
+            <option <%= query?.paid_for===p?"selected":"" %>><%= p %></option>
           <% }) %>
         </select>
       </div>
@@ -53,6 +62,7 @@
             <th>Purpose</th>
             <th>Paid By</th>
             <th>Mode</th>
+            <th>For</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -64,6 +74,7 @@
             <td><%= t.purpose %></td>
             <td><%= t.paid_by==="Other"? t.other_person : t.paid_by %></td>
             <td><%= t.payment_mode %></td>
+            <td><%= t.paid_for %></td>
             <td>
               <a href="/edit/<%= t.id %>?redirect=/list" class="btn btn-warning btn-sm">✏</a>
              <form method="POST"
