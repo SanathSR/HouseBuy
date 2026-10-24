@@ -53,7 +53,7 @@ app.get("/", async (req, res) => {
         const count = data.length;
 
         const buyData = data.filter(
-            t => (t.paid_for || "").toLowerCase() === "buy"
+            t => (t.paid_for || "").toLowerCase() === "purchase"
         );
 
         const constructionData = data.filter(
@@ -199,7 +199,7 @@ app.get("/list", async (req, res) => {
 
     if (paid_for) {
         query += ` AND paid_for <= $${i++}`;
-        values.push(to);
+        values.push(paid_for);
     }
 
     if (paid_by) {
