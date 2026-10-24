@@ -14,7 +14,10 @@
     <div class="card shadow-sm text-center">
       <div class="card-body">
         <h6>Total Spend</h6>
-        <h4 class="text-success">₹ <%= total || 0 %></h4>
+        <h4 class="text-success">₹ <%= Number(total || 0).toLocaleString('en-IN', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+}) %></h4>
       </div>
     </div>
   </div>
@@ -33,7 +36,10 @@
       <div class="card-body">
         <h6>Buy Spend</h6>
         <h4 class="text-primary">
-          ₹ <%= buyTotal || 0 %>
+          ₹ <%= Number(buyTotal || 0).toLocaleString('en-IN', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+}) %>
         </h4>
       </div>
     </div>
@@ -44,12 +50,72 @@
       <div class="card-body">
         <h6>Construction Spend</h6>
         <h4 class="text-warning">
-          ₹ <%= constructionTotal || 0 %>
+          ₹ <%= Number(constructionTotal || 0).toLocaleString('en-IN', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+}) %>
         </h4>
       </div>
     </div>
   </div>
 </div>
+
+
+<!-- PIE CHARTS -->
+<div class="row mb-3">
+  <div class="col-12">
+    <h5 class="mb-3">Buy Expense Breakdown</h5>
+  </div>
+
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="text-center">Buy — Paid By</h6>
+        <div style="position:relative; height:300px">
+          <canvas id="buyPaidByChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="text-center">Buy — Payment Mode</h6>
+        <div style="position:relative; height:300px">
+          <canvas id="buyModeChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <h5 class="mb-3 mt-2">Construction Expense Breakdown</h5>
+  </div>
+
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="text-center">Construction — Paid By</h6>
+        <div style="position:relative; height:300px">
+          <canvas id="constructionPaidByChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="text-center">Construction — Payment Mode</h6>
+        <div style="position:relative; height:300px">
+          <canvas id="constructionModeChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- RECENT TABLE -->
 <div class="card shadow-sm">
@@ -101,6 +167,8 @@ style="display:inline">
 
 <%- include('partials/passwordModal') %>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 let currentForm = null;
 
@@ -143,5 +211,70 @@ document.getElementById('passwordForm').addEventListener('submit', async functio
         errorBox.innerText = "Server error";
     }
 });
+
+const charts = <%- chartJson %>;
+
+function renderPieChart(canvasId, chartData) {
+    const canvas = document.getElementById(canvasId);
+
+    if (!canvas) return;
+
+    if (!chartData.labels.length) {
+        canvas.parentElement.innerHTML =
+            '<p class="text-muted text-center mt-5">No transactions available</p>';
+        return;
+    }
+
+    new Chart(canvas, {
+        type: 'pie',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                data: chartData.values,
+                backgroundColor: [
+                    '#4e79a7',
+                    '#f28e2b',
+                    '#e15759',
+                    '#76b7b2',
+                    '#59a14f',
+                    '#edc949',
+                    '#af7aa1',
+                    '#ff9da7',
+                    '#9c755f',
+                    '#bab0ab'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const amount = Number(context.raw || 0)
+                                .toLocaleString('en-IN', {
+                                    style: 'currency',
+                                    currency: 'INR',
+                                    maximumFractionDigits: 2
+                                });
+
+                            return context.label + ': ' + amount;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+renderPieChart('buyPaidByChart', charts.buyPaidBy);
+renderPieChart('buyModeChart', charts.buyMode);
+renderPieChart('constructionPaidByChart', charts.constructionPaidBy);
+renderPieChart('constructionModeChart', charts.constructionMode);
 </script>
 <%- include('partials/footer') %>
